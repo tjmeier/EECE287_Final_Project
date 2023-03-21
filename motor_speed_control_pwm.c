@@ -1,3 +1,5 @@
+//When you have code to test implementing, past it here:
+
 // Binghamton University
 // EECE 287 Sophomore Design
 // Test PWM to control the speed of the motors
@@ -14,8 +16,17 @@
 #define LEFT_MOTOR_DIRECTION_LOCATION 2
 #define RIGHT_MOTOR_DIRECTION_LOCATION 1
 
+//Input Pin C
+#define A_BUTTON_LOCATION 3
+#define C_BUTTON_LOCATION 0
+
+//Output Port C
+#define YELLOW_LED_LOCATION 7
+
 //define PWM parameters
-#define PWM_TOP 100 //maximum value of 100, indicating 100%
+#define INCREMENT 10
+#define PWM_TOP 100 //pwm ranges from 0 to 100
+
 
 
 void configure_motors(){
@@ -42,12 +53,12 @@ void turn_off_left_motor_pwm(){
 	PORTB &= ~(1<< LEFT_MOTOR_PWM_LOCATION); 
 }
 
-void turn_on_left_motor_pwm(){
-	PORTB |= (1<< LEFT_MOTOR_PWM_LOCATION); 
+void turn_on_right_motor_pwm(){
+	PORTB |= (1<< RIGHT_MOTOR_PWM_LOCATION); 
 }
 
-void turn_off_left_motor_pwm(){
-	PORTB &= ~(1<< LEFT_MOTOR_PWM_LOCATION); 
+void turn_off_right_motor_pwm(){
+	PORTB &= ~(1<< RIGHT_MOTOR_PWM_LOCATION); 
 }
 
 ////Toggling motor directions////
@@ -71,21 +82,58 @@ void set_forward_right_motor_direction(){
 	PORTB &= ~(1<< RIGHT_MOTOR_DIRECTION_LOCATION); 
 }
 
+
+void configure_A_button(){
+	
+	DDRB &= ~(1<< A_BUTTON_LOCATION); 
+	PORTB |= (1<< A_BUTTON_LOCATION); 
+}
+
+void configure_C_button(){
+	
+	DDRB &= ~(1<< C_BUTTON_LOCATION); 
+	PORTB |= (1<< C_BUTTON_LOCATION);		//it should start at 1?
+}
+
+void configure_yellow_led()
+{
+	DDRC |= (1<<YELLOW_LED_LOCATION);
+}
+
+void turn_on_yellow_led()
+{
+	PORTC |= (1<<YELLOW_LED_LOCATION);
+}
+
+void turn_off_yellow_led()
+{
+	PORTC &= ~(1<<YELLOW_LED_LOCATION);
+}
+
+
 int main() { 
 
     //from zumo_drivers.h
     configure_zumo();
 
+	//for ddr and resistor stuff
+	configure_motors();
+	configure_A_button();
+	configure_C_button();
+	configure_yellow_led();
 
 	//initialize variables
  	unsigned int pwm_counter = 0;    	
-	unsigned int duty_cycle = 0;
 	unsigned int left_motor_speed = 0, right_motor_speed = 0;
+	
+	unsigned int last_button_C_state = (PINB & (1 << C_BUTTON_LOCATION));
+	unsigned int button_C_pressed = 0;
+	unsigned int last_button_A_state = (PINB & (1 << A_BUTTON_LOCATION));
+	unsigned int button_A_pressed = 0;
 
 
+	//Main Loop
 
-	//set up state for when button C is pressed	
-  
  	while(1) { 
 
  	 	//PWM Counter 
@@ -93,22 +141,22 @@ int main() {
  	 	if( pwm_counter >= PWM_TOP ){ 
  	 	 	pwm_counter = 0; //once the counter reaches the top, resets to zero
  	 	} 
-  
+		
  	 	//PWM for Left Motor
-		if (pwm_counter < duty_cycle) { 
- 	 	 	turn_on_yellow_led();
+		if (pwm_counter < left_motor_speed) { 
+ 	 	 	turn_on_left_motor_pwm();
  	 	}
  	 	else { 
- 	 	 	turn_off_yellow_led();
+ 	 	 	turn_off_left_motor_pwm();
 	 	} 
 
 		  
  		//PWM for Right Motor
-		if (pwm_counter < duty_cycle) { 
- 	 	 	turn_on_yellow_led();
+		if (pwm_counter < right_motor_speed) { 
+ 	 	 	turn_on_right_motor_pwm();
  	 	}
  	 	else { 
- 	 	 	turn_off_yellow_led();
+ 	 	 	turn_off_right_motor_pwm();
 	 	} 
   
  	 	//Pulser for button A 
@@ -140,11 +188,13 @@ int main() {
   
  	 	//Decrement duty cycle when button A is pressed  	 	
 		if( button_A_pressed == 1 ){  	 	 	
-			if( duty_cycle >= INCREMENT ){ 
- 	 	 	 	duty_cycle = duty_cycle - INCREMENT; 
+			if( left_motor_speed >= INCREMENT ){ //should be split up to left and right, this is just a test
+				left_motor_speed -= INCREMENT;
+				right_motor_speed -= INCREMENT;	 
  	 	 	} 
  	 	 	else{ 
- 	 	 	 	duty_cycle = 0; 
+ 	 	 	 	left_motor_speed = 0;
+				right_motor_speed = 0; 
  	 	 	} 
  	 	} 
  	 	
@@ -152,15 +202,16 @@ int main() {
 		
 		///-------Enter code here-------
   		if( button_C_pressed == 1 ){  	 	 	
-			if( duty_cycle <= (PWM_TOP - INCREMENT) ){ 
- 	 	 	 	duty_cycle = duty_cycle + INCREMENT; 
- 	 	 	} 
+			if( left_motor_speed <= (PWM_TOP - INCREMENT) ){ 
+				left_motor_speed += INCREMENT;
+				right_motor_speed += INCREMENT;	 	
+			} 
  	 	 	else{ 
- 	 	 	 	duty_cycle = PWM_TOP; 
+ 	 	 	 	left_motor_speed = PWM_TOP;
+				right_motor_speed = PWM_TOP;	
  	 	 	} 
  	 	} 
  	 	//small delay to slow down main loop 
  	 	_delay_us(10); 
  	} 
 }
-3
