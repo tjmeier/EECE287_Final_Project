@@ -3,7 +3,6 @@
 // Binghamton University
 // EECE 287 Sophomore Design
 // Test PWM to control the speed of the motors
-#define F_CPU 1000000UL
 
 #include <avr/io.h> 
 #include <util/delay.h> 
@@ -125,8 +124,13 @@ int main() {
 
 	//initialize variables
  	unsigned int pwm_counter = 0;    	
-	unsigned int duty_cycle = 0;
 	unsigned int left_motor_speed = 0, right_motor_speed = 0;
+	
+	unsigned int last_button_C_state = (PINB & (1 << C_BUTTON_LOCATION));
+	unsigned int button_C_pressed = 0;
+	unsigned int last_button_A_state = (PINB & (1 << A_BUTTON_LOCATION));
+	unsigned int button_A_pressed = 0;
+
 
 	//Main Loop
 
@@ -155,14 +159,42 @@ int main() {
  	 	 	turn_off_right_motor_pwm();
 	 	} 
   
+ 	 	//Pulser for button A 
+ 	 	if((PINB & (1 << A_BUTTON_LOCATION)) != last_button_A_state){ //if a change in state of the button is detected
+ 	 	 	if((PINB & (1 << A_BUTTON_LOCATION)) == 0 ){//if button is pressed
+ 	 	 	 	button_A_pressed = 1; 
+ 	 	 	} 
+			//update last button state
+ 	 	 	last_button_A_state = (PINB & (1 << A_BUTTON_LOCATION)); 
+ 	 	} 
+ 	 	else{ 
+ 	 	 	button_A_pressed = 0; 
+ 	 	} 
+ 	 	 
 
+ 	 	//Pulser for C button 
+		if((PINB & (1 << C_BUTTON_LOCATION)) != last_button_C_state){ 
+ 	 	 	if((PINB & (1 << C_BUTTON_LOCATION)) == 0 ){//if button is pressed
+ 	 	 	 	button_C_pressed = 1; 
+ 	 	 	} 
+			//update last button state
+ 	 	 	last_button_C_state = (PINB & (1 << C_BUTTON_LOCATION)); 
+ 	 	} 
+ 	 	else{ 
+ 	 	 	button_C_pressed = 0; 
+ 	 	} 
+ 	 	
+ 	 	///-------Enter code here-------
+  
  	 	//Decrement duty cycle when button A is pressed  	 	
 		if( button_A_pressed == 1 ){  	 	 	
-			if( duty_cycle >= INCREMENT ){ 
- 	 	 	 	duty_cycle = duty_cycle - INCREMENT; 
+			if( left_motor_speed >= INCREMENT ){ //should be split up to left and right, this is just a test
+				left_motor_speed -= INCREMENT;
+				right_motor_speed -= INCREMENT;	 
  	 	 	} 
  	 	 	else{ 
- 	 	 	 	duty_cycle = 0; 
+ 	 	 	 	left_motor_speed = 0;
+				right_motor_speed = 0; 
  	 	 	} 
  	 	} 
  	 	
@@ -170,15 +202,16 @@ int main() {
 		
 		///-------Enter code here-------
   		if( button_C_pressed == 1 ){  	 	 	
-			if( duty_cycle <= (PWM_TOP - INCREMENT) ){ 
- 	 	 	 	duty_cycle = duty_cycle + INCREMENT; 
- 	 	 	} 
+			if( left_motor_speed <= (PWM_TOP - INCREMENT) ){ 
+				left_motor_speed += INCREMENT;
+				right_motor_speed += INCREMENT;	 	
+			} 
  	 	 	else{ 
- 	 	 	 	duty_cycle = PWM_TOP; 
+ 	 	 	 	left_motor_speed = PWM_TOP;
+				right_motor_speed = PWM_TOP;	
  	 	 	} 
  	 	} 
  	 	//small delay to slow down main loop 
  	 	_delay_us(10); 
  	} 
 }
-3
