@@ -1,19 +1,28 @@
-// Binghamton University
-// EECE 287 Sophomore Design
-// Lab 7, Design 2 - Implement PWM on LEDs of the Zumo 32u4 OLED Robot 
-// Basic PWM Implementation without using in-built PWM Timers/Counter Pins  
-
 #include <avr/io.h> 
 #include <util/delay.h> 
 #include <stdint.h>
 #include <stdbool.h>
 #include "zumo_drivers.h"
 
+////////////////////////
+//       Macros       //
+////////////////////////
+
 //Output Port B
 #define LEFT_MOTOR_PWM_LOCATION 6
 #define RIGHT_MOTOR_PWM_LOCATION 5
 #define LEFT_MOTOR_DIRECTION_LOCATION 2
 #define RIGHT_MOTOR_DIRECTION_LOCATION 1
+
+//Output Port C
+#define YELLOW_LED_LOCATION 7
+
+#define PWM_TOP 100
+#define INCREMENT 5
+
+////////////////////////
+//Function Definitions//
+////////////////////////
 
 void configure_motors(){
 
@@ -63,15 +72,6 @@ void set_forward_right_motor_direction(){
 	PORTB &= ~(1<< RIGHT_MOTOR_DIRECTION_LOCATION); 
 }
 
-#define A_BUTTON_LOCATION 3
-#define YELLOW_LED_LOCATION 7
-//replace X with the pin mapping for button C
-#define C_BUTTON_LOCATION 0
-
-//define PWM parameters
-#define PWM_TOP 100 //maximum value of 100, indicating 100%
-#define INCREMENT 5 //how much the duty cycle changes with each button press 
-
 void configure_yellow_led()
 {
 	DDRC |= (1<<YELLOW_LED_LOCATION);
@@ -87,11 +87,13 @@ void turn_off_yellow_led()
 	PORTC &= ~(1<<YELLOW_LED_LOCATION);
 }
 
+////////////////////////
+//    Main Function   //
+////////////////////////
 
 int main() { 
 
-	//configure ports
-	configure_zumo();
+	configure_zumo();//deleting this line makes it work
 	configure_yellow_led();
 
 	configure_motors();
@@ -102,11 +104,6 @@ int main() {
 	//initialize variables
  	unsigned int pwm_counter=0;    	
 	unsigned int duty_cycle=30;   
-
-
-
-
-	//set up state for when button C is pressed	
   
  	while(1) { 
  	 	//PWM Counter 
@@ -115,7 +112,6 @@ int main() {
  	 	 	pwm_counter = 0; 
  	 	} 
   
- 	 	//PWM on yellow LED  	 	
 		if (pwm_counter < duty_cycle) { 
  	 	 	turn_on_yellow_led();
 			turn_on_left_motor_pwm();
