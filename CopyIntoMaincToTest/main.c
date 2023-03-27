@@ -171,19 +171,14 @@ int main()
     
     _delay_us(5000000);
     
-	//initialize variables
-	const unsigned int comparison_tolerance = 0;
-	//less than 1 makes robot turn more left, greater than 1 makes robot turn more right
-	const double right_turn_bias = 1.02;//seems to be between 1.02 and 1.03
-	const double tweak_magnitude = 3;
+ 	unsigned int pwm_counter=0; 
 
- 	unsigned int pwm_counter=0;    	
-	double left_duty_cycle=25;   
-	double right_duty_cycle=25;  
-	uint32_t right_revs, left_revs;
+	double left_duty_cycle=100;   
+	double right_duty_cycle=100;  
+	set_forward_left_motor_direction();
+	set_forward_right_motor_direction();
 
-
- 	while(1) { 
+ 	while(get_left_quadrature_counter() < 5000) { 
 
 		//pwm increment
 		pwm_counter++;
@@ -205,26 +200,41 @@ int main()
 			turn_off_right_motor_pwm();
 	 	} 
 
+ 	 	_delay_us(10); 
+	}
 
-		right_revs = get_right_quadrature_counter();
-		left_revs = get_left_quadrature_counter();
-			//correction for drifting left
-			if (right_revs*right_turn_bias + comparison_tolerance < left_revs){
-				if (right_duty_cycle < PWM_TOP)
-					right_duty_cycle += tweak_magnitude;
-				if (left_duty_cycle > 0)
-					left_duty_cycle -= tweak_magnitude;
-			}
+	left_duty_cycle=30;   
+	right_duty_cycle=30; 
+	set_reverse_left_motor_direction();
+	set_reverse_right_motor_direction();
+ 	while(get_left_quadrature_counter() < 10000) { 
 
-			//correction for drifting right
-			if (left_revs + comparison_tolerance < right_revs*right_turn_bias){
-				if (left_duty_cycle < PWM_TOP)
-					left_duty_cycle += tweak_magnitude;
-				if (right_duty_cycle > 0)
-					right_duty_cycle -= tweak_magnitude;
-			}
+		//pwm increment
+		pwm_counter++;
+		if (pwm_counter >= PWM_TOP){
+			pwm_counter = 0;
+		}
+		
+		if (pwm_counter < left_duty_cycle) { 
+			turn_on_left_motor_pwm();
+ 	 	}
+ 	 	else { 
+			turn_off_left_motor_pwm();
+	 	} 
+
+		if (pwm_counter < right_duty_cycle) { 
+			turn_on_right_motor_pwm();
+ 	 	}
+ 	 	else { 
+			turn_off_right_motor_pwm();
+	 	} 
 
  	 	_delay_us(10); 
+	}
+
+	turn_off_left_motor_pwm();
+	turn_off_right_motor_pwm();
+
 }
 
 
