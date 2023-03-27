@@ -12,6 +12,10 @@
 #include <stdio.h> 
 #include "zumo_drivers.h"
 
+// Macros
+#define X_ORIGIN 30
+#define Y_ORIGIN 30
+
 // Function to change coordinate using buttons
 // Button A increases
 // Button C decreases
@@ -20,7 +24,7 @@ void changeCoord(int* coord)
     // Increases the coordinate value if button a is pressed and less than max value
 	if(button_a_is_down() && *coord < 60)
 		*coord += 1;
-        
+
     // Decreases the coordinate value if button c is pressed and greater than min value
 	else if(button_c_is_down() && *coord > 0)
 		*coord += -1;
@@ -45,4 +49,44 @@ void displayCoord(int coord, char dimension)
     // Places each digit on the OLED
 	oled_put_hex(digit1);
 	oled_put_hex(digit0);
+}
+
+int main()
+{
+    // Setting up the zumo bot
+    configure_zumo();
+	oled_clear();
+
+    // Variable initializations
+    int x = X_ORIGIN;
+    int y = Y_ORIGIN;
+
+	// Set up x-coord value on OLED
+	oled_set_cursor(0,0); // First row
+    displayCoord(x, 'x');
+
+	// Set up y-coord value on OLED
+	oled_set_cursor(1,0); // Second row
+    displayCoord(y, 'y');
+
+    // Loop to change x coordinate
+    while(button_b_is_up())
+	{
+		displayCoord(x, 'x');
+		changeCoord(&x);
+		_delay_us(100000);
+	}
+
+    // Delay for user input
+	if(button_b_is_down())
+		_delay_us(1000000);
+
+    // Loop to chnage y coordinate
+	while(button_b_is_up())
+	{
+		displayCoord(y, 'y');
+		changeCoord(&y);
+		_delay_us(100000);
+	}
+
 }
