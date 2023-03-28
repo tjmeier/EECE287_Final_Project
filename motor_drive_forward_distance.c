@@ -152,7 +152,7 @@ void drive_revolutions(uint32_t revolutions){
  	} while (left_revs < initial_left_revs + revolutions);
 	
 	
-	turn_on_left_motor_pwm();
+	turn_off_right_motor_pwm();
 	turn_off_left_motor_pwm();
 }
 
