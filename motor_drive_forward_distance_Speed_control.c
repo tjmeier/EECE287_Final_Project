@@ -98,6 +98,7 @@ void drive_revolutions(uint32_t revolutions, int8_t speed_percentage){
 	set_forward_left_motor_direction();
 	
 	uint32_t initial_left_revs = get_left_quadrature_counter();
+	uint32_t initial_right_revs = get_right_quadrature_counter();
 
 	const uint8_t comparison_tolerance = 0;
 	//less than 1 makes robot turn more left, greater than 1 makes robot turn more right
@@ -131,8 +132,8 @@ void drive_revolutions(uint32_t revolutions, int8_t speed_percentage){
 	 	} 
 
 
-		right_revs = get_right_quadrature_counter();
-		left_revs = get_left_quadrature_counter();
+		right_revs = get_right_quadrature_counter() - initial_right_revs;
+		left_revs = get_left_quadrature_counter() - initial_left_revs;
 			//correction for drifting left
 			if (right_revs*right_turn_bias + comparison_tolerance < left_revs){
 				if (right_duty_cycle + tweak_magnitude <= PWM_TOP && left_duty_cycle - tweak_magnitude >= 0){
