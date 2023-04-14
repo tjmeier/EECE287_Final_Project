@@ -25,12 +25,13 @@
 
 //Software Constants
 #define PWM_TOP 100
-#define LEFTQUAD_TO_INCHES 199
-#define QUAD_TO_DEGREES_ROTATED 7.768f
-#define RIGHT_TURN_BIAS 0.9959f
+#define LEFTQUAD_TO_INCHES 201.5f
+#define QUAD_TO_DEGREES_ROTATED 7.7685f
+#define F_RIGHT_TURN_BIAS 0.9896f
+#define R_RIGHT_TURN_BIAS 0.987f
 #define X_ORIGIN 30
 #define Y_ORIGIN 30
-#define DRIVE_SPEED 50
+#define DRIVE_SPEED 30
 #define TURN_SPEED 30
 
 /////////////////////////////////
@@ -140,7 +141,7 @@ void displayCoord(int coord, char dimension)
 	oled_put_hex(digit0);
 }
 
-void drive_revolutions(uint32_t revolutions, int8_t speed_percentage){
+void drive_revolutions(uint32_t revolutions, int8_t speed_percentage, float right_turn_bias){
 	uint32_t initial_left_revs = get_left_quadrature_counter();
 	uint32_t initial_right_revs = get_right_quadrature_counter();
 
@@ -179,7 +180,7 @@ void drive_revolutions(uint32_t revolutions, int8_t speed_percentage){
 		right_revs = get_right_quadrature_counter() - initial_right_revs;
 		left_revs = get_left_quadrature_counter() - initial_left_revs;
 			//correction for drifting left
-			if (right_revs*RIGHT_TURN_BIAS + comparison_tolerance < left_revs){
+			if (right_revs*right_turn_bias + comparison_tolerance < left_revs){
 				if (right_duty_cycle + tweak_magnitude <= PWM_TOP && left_duty_cycle - tweak_magnitude >= 0){
 					right_duty_cycle += tweak_magnitude;
 					left_duty_cycle -= tweak_magnitude;
@@ -187,7 +188,7 @@ void drive_revolutions(uint32_t revolutions, int8_t speed_percentage){
 			}
 
 			//correction for drifting right
-			if (left_revs + comparison_tolerance < right_revs*RIGHT_TURN_BIAS){
+			if (left_revs + comparison_tolerance < right_revs*right_turn_bias){
 				if (left_duty_cycle + tweak_magnitude <= PWM_TOP && right_duty_cycle - tweak_magnitude >= 0){
 					left_duty_cycle += tweak_magnitude;
 					right_duty_cycle -= tweak_magnitude;
@@ -205,25 +206,25 @@ void drive_revolutions(uint32_t revolutions, int8_t speed_percentage){
 void drive_forward_inches (uint8_t distance_inches, int8_t speed_percentage){
 	set_right_motor_direction_forward();
 	set_left_motor_direction_forward();
-	drive_revolutions(distance_inches * LEFTQUAD_TO_INCHES, speed_percentage);
+	drive_revolutions(distance_inches * LEFTQUAD_TO_INCHES, speed_percentage, F_RIGHT_TURN_BIAS);
 }
 
 void drive_reverse_inches (uint8_t distance_inches, int8_t speed_percentage){
 	set_right_motor_direction_reverse();
 	set_left_motor_direction_reverse();
-	drive_revolutions(distance_inches * LEFTQUAD_TO_INCHES, speed_percentage);
+	drive_revolutions(distance_inches * LEFTQUAD_TO_INCHES, speed_percentage, R_RIGHT_TURN_BIAS);
 }
 
 void turn_left_degrees(uint16_t degrees_to_rotate, int8_t speed_percentage){
 	set_right_motor_direction_forward();
 	set_left_motor_direction_reverse();
-	drive_revolutions(degrees_to_rotate * QUAD_TO_DEGREES_ROTATED, speed_percentage);
+	drive_revolutions(degrees_to_rotate * QUAD_TO_DEGREES_ROTATED, speed_percentage, F_RIGHT_TURN_BIAS);
 }
 
 void turn_right_degrees(uint16_t degrees_to_rotate, int8_t speed_percentage){
 	set_right_motor_direction_reverse();
 	set_left_motor_direction_forward();
-	drive_revolutions(degrees_to_rotate * QUAD_TO_DEGREES_ROTATED, speed_percentage);
+	drive_revolutions(degrees_to_rotate * QUAD_TO_DEGREES_ROTATED, speed_percentage, F_RIGHT_TURN_BIAS);
 }
 
 //Place robot directly on the origin, facing positive y direction
