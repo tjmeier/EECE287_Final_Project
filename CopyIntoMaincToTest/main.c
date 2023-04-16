@@ -87,18 +87,15 @@ void set_right_motor_direction_forward(){
 	PORTB &= ~(1<< RIGHT_MOTOR_DIRECTION_LOCATION); 
 }
 
-void configure_yellow_led()
-{
+void configure_yellow_led(){
 	DDRC |= (1<<YELLOW_LED_LOCATION);
 }
 
-void turn_on_yellow_led()
-{
+void turn_on_yellow_led(){
 	PORTC |= (1<<YELLOW_LED_LOCATION);
 }
 
-void turn_off_yellow_led()
-{
+void turn_off_yellow_led(){
 	PORTC &= ~(1<<YELLOW_LED_LOCATION);
 }
 
@@ -146,7 +143,6 @@ void drive_revolutions(uint32_t revolutions, int8_t speed_percentage, float righ
 	uint32_t initial_right_revs = get_right_quadrature_counter();
 
 	const uint8_t comparison_tolerance = 0;
-	//less than 1 makes robot turn more left, greater than 1 makes robot turn more right
 	
 	const uint8_t tweak_magnitude = 3;
 
@@ -233,6 +229,7 @@ void drive_to_coord(int x, int y)
 	uint8_t x_distance = 0;
 	uint8_t y_distance = 0;
 
+	//go to y coordinate my either driving forward or in reverse
 	if(y >= Y_ORIGIN)
 	{
 		y_distance = y - Y_ORIGIN;
@@ -244,6 +241,7 @@ void drive_to_coord(int x, int y)
 		drive_reverse_inches(y_distance, DRIVE_SPEED);
 	}
 
+	//go to x coordinate by either turning left or right and then driving forward
 	if(x >= X_ORIGIN)
 	{
 		x_distance = x - X_ORIGIN;
