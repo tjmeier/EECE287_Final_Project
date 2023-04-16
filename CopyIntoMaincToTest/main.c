@@ -19,18 +19,20 @@
 #define RIGHT_MOTOR_PWM_LOCATION 5
 #define LEFT_MOTOR_DIRECTION_LOCATION 2
 #define RIGHT_MOTOR_DIRECTION_LOCATION 1
-#define CLOCKS_PER_MILISECOND 10000
 
 //Output Port C
 #define YELLOW_LED_LOCATION 7
 
 //Software Constants
 #define PWM_TOP 100
-#define INCREMENT 5
-#define LEFTQUAD_TO_INCHES 220
-#define QUAD_TO_DEGREES_ROTATED 7.5f
+#define LEFTQUAD_TO_INCHES 201.5f
+#define QUAD_TO_DEGREES_ROTATED 7.7685f
+#define F_RIGHT_TURN_BIAS 0.9896f
+#define R_RIGHT_TURN_BIAS 0.987f
 #define X_ORIGIN 30
 #define Y_ORIGIN 30
+#define DRIVE_SPEED 30
+#define TURN_SPEED 30
 
 /////////////////////////////////
 //Hardware Function Definitions//
@@ -65,22 +67,22 @@ void turn_off_right_motor_pwm(){
 }
 
 ////Toggling motor directions////
-void set_reverse_left_motor_direction(){
+void set_left_motor_direction_reverse(){
 	//setting the port = reverse
 	PORTB |= (1<< LEFT_MOTOR_DIRECTION_LOCATION); 
 }
 
-void set_forward_left_motor_direction(){
+void set_left_motor_direction_forward(){
 	//clearing the port = forward
 	PORTB &= ~(1<< LEFT_MOTOR_DIRECTION_LOCATION); 
 }
 
-void set_reverse_right_motor_direction(){
+void set_right_motor_direction_reverse(){
 	//setting the port = reverse
 	PORTB |= (1<< RIGHT_MOTOR_DIRECTION_LOCATION); 
 }
 
-void set_forward_right_motor_direction(){
+void set_right_motor_direction_forward(){
 	//clearing the port = forward
 	PORTB &= ~(1<< RIGHT_MOTOR_DIRECTION_LOCATION); 
 }
@@ -139,13 +141,13 @@ void displayCoord(int coord, char dimension)
 	oled_put_hex(digit0);
 }
 
-void drive_revolutions(uint32_t revolutions, int8_t speed_percentage){
+void drive_revolutions(uint32_t revolutions, int8_t speed_percentage, float right_turn_bias){
 	uint32_t initial_left_revs = get_left_quadrature_counter();
 	uint32_t initial_right_revs = get_right_quadrature_counter();
 
 	const uint8_t comparison_tolerance = 0;
 	//less than 1 makes robot turn more left, greater than 1 makes robot turn more right
-	const double right_turn_bias = 1.02;//seems to be between 1.02 and 1.03
+	
 	const uint8_t tweak_magnitude = 3;
 
  	unsigned int pwm_counter=0;    	
@@ -202,21 +204,27 @@ void drive_revolutions(uint32_t revolutions, int8_t speed_percentage){
 }
 
 void drive_forward_inches (uint8_t distance_inches, int8_t speed_percentage){
-	set_forward_right_motor_direction();
-	set_forward_left_motor_direction();
-	drive_revolutions(distance_inches * LEFTQUAD_TO_INCHES, speed_percentage);
+	set_right_motor_direction_forward();
+	set_left_motor_direction_forward();
+	drive_revolutions(distance_inches * LEFTQUAD_TO_INCHES, speed_percentage, F_RIGHT_TURN_BIAS);
+}
+
+void drive_reverse_inches (uint8_t distance_inches, int8_t speed_percentage){
+	set_right_motor_direction_reverse();
+	set_left_motor_direction_reverse();
+	drive_revolutions(distance_inches * LEFTQUAD_TO_INCHES, speed_percentage, R_RIGHT_TURN_BIAS);
 }
 
 void turn_left_degrees(uint16_t degrees_to_rotate, int8_t speed_percentage){
-	set_forward_right_motor_direction();
-	set_reverse_left_motor_direction();
-	drive_revolutions(degrees_to_rotate * QUAD_TO_DEGREES_ROTATED, speed_percentage);
+	set_right_motor_direction_forward();
+	set_left_motor_direction_reverse();
+	drive_revolutions(degrees_to_rotate * QUAD_TO_DEGREES_ROTATED, speed_percentage, F_RIGHT_TURN_BIAS);
 }
 
 void turn_right_degrees(uint16_t degrees_to_rotate, int8_t speed_percentage){
-	set_reverse_right_motor_direction();
-	set_forward_left_motor_direction();
-	drive_revolutions(degrees_to_rotate * QUAD_TO_DEGREES_ROTATED, speed_percentage);
+	set_right_motor_direction_reverse();
+	set_left_motor_direction_forward();
+	drive_revolutions(degrees_to_rotate * QUAD_TO_DEGREES_ROTATED, speed_percentage, F_RIGHT_TURN_BIAS);
 }
 
 //Place robot directly on the origin, facing positive y direction
@@ -224,34 +232,30 @@ void drive_to_coord(int x, int y)
 {
 	uint8_t x_distance = 0;
 	uint8_t y_distance = 0;
-	_Bool x_direction_pos = true;
-	_Bool y_direction_pos = true;
-
-	if(x >= X_ORIGIN)
-		x_distance = x - X_ORIGIN;
-	else
-	{
-		x_distance = X_ORIGIN - x;
-		x_direction_pos = false;
-	}
 
 	if(y >= Y_ORIGIN)
+	{
 		y_distance = y - Y_ORIGIN;
+		drive_forward_inches(y_distance, DRIVE_SPEED);
+	}
 	else
 	{
 		y_distance = Y_ORIGIN - y;
-		y_direction_pos = false;
-		turn_left_degrees(180, 25);
+		drive_reverse_inches(y_distance, DRIVE_SPEED);
 	}
 
-	drive_forward_inches(y_distance, 25);
-
-	if(x_direction_pos ^ y_direction_pos)
-		turn_left_degrees(90, 25);
+	if(x >= X_ORIGIN)
+	{
+		x_distance = x - X_ORIGIN;
+		turn_right_degrees(90, TURN_SPEED);
+	}
 	else
-		turn_right_degrees(90, 25);
-
-	drive_forward_inches(x_distance, 25);
+	{
+		x_distance = X_ORIGIN - x;
+		turn_left_degrees(90, TURN_SPEED);
+	}
+	
+	drive_forward_inches(x_distance, DRIVE_SPEED);
 }
 
 ////////////////////////
@@ -309,7 +313,7 @@ int main() {
 		oled_set_cursor(3,10-2*i);
 		oled_put_hex(i);
 		for(uint8_t j = 0; j < 100; j++)
-			_delay_us(CLOCKS_PER_MILISECOND);		
+			_delay_us(10000);		
 	}
 
 	turn_on_yellow_led();
