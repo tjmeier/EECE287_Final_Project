@@ -182,14 +182,18 @@ int main(){
 
 	right_proximity_value = read_right_proximity_sensor();
 	oled_put_hex(right_proximity_value); //use the values you see to threshold detection of an object
+	oled_put_hex(right_proximity_value >> 4);
 
 	oled_set_cursor(1,0);
 	left_proximity_value = read_left_proximity_sensor();
 	oled_put_hex(left_proximity_value);
+	oled_put_hex(left_proximity_value >> 4);
+
 
 	oled_set_cursor(2,0);
 	front_proximity_value = read_front_proximity_sensor();
 	oled_put_hex(front_proximity_value);
+	oled_put_hex(front_proximity_value >> 4);
 
 	_delay_us(1000000);
 
