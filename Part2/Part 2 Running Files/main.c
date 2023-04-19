@@ -68,10 +68,11 @@ uint8_t read_right_proximity_sensor()
 	PORTB &= ~(1<<7);
 	
 	uint8_t right_sensor_detection_factor = 0;
+	uint16_t brightness_duty_cycle = 0;
 	
-	for (int i = 0; i < 6; i++){ //6 is the number of brightness levels in the array
+	for (int i = 0; i < 127; i++){ //6 is the number of brightness levels in the array
 
-		uint16_t brightness_duty_cycle = BrightnessLevels[i];
+		brightness_duty_cycle++;
 		
 		start_IR_emitters(0, brightness_duty_cycle); //0 indicates to use right IR emitters
 		_delay_us(420);
@@ -100,13 +101,14 @@ uint8_t read_left_proximity_sensor()
 	//turn off line sensor IR LEDS to remove interference
 	DDRB &= ~(1<<7);
 	PORTB &= ~(1<<7);
+	uint16_t brightness_duty_cycle = 0;
 	
 	//------------write code here: refer to read_right_proximity_sensor ---------
 	uint8_t left_sensor_detection_factor = 0;
 	
-	for (int i = 0; i < 6; i++){ //6 is the number of brightness levels in the array
+	for (int i = 0; i < 127; i++){ //6 is the number of brightness levels in the array
 
-		uint16_t brightness_duty_cycle = BrightnessLevels[i];
+		brightness_duty_cycle++;
 		
 		start_IR_emitters(0, brightness_duty_cycle); //0 indicates to use right IR emitters
 		_delay_us(420);
@@ -135,13 +137,14 @@ uint8_t read_front_proximity_sensor()
 	//turn off line sensor IR LEDS to remove interference
 	DDRB &= ~(1<<7);
 	PORTB &= ~(1<<7);
+	uint16_t brightness_duty_cycle = 0;
 	
 	//------------write code here: refer to read_right_proximity_sensor ---------
 	uint8_t front_sensor_detection_factor = 0;
 	
-	for (int i = 0; i < 6; i++){ //6 is the number of brightness levels in the array
+	for (int i = 0; i < 127; i++){ //6 is the number of brightness levels in the array
 
-		uint16_t brightness_duty_cycle = BrightnessLevels[i];
+		brightness_duty_cycle++;
 		
 		start_IR_emitters(0, brightness_duty_cycle); //0 indicates to use right IR emitters
 		_delay_us(420);
@@ -178,24 +181,24 @@ int main(){
 	uint8_t front_proximity_value = 0;
 	
 	loop:
-	oled_set_cursor(0,0);
+	oled_set_cursor(2,11);
 
 	right_proximity_value = read_right_proximity_sensor();
-	oled_put_hex(right_proximity_value); //use the values you see to threshold detection of an object
 	oled_put_hex(right_proximity_value >> 4);
-
-	oled_set_cursor(1,0);
-	left_proximity_value = read_left_proximity_sensor();
-	oled_put_hex(left_proximity_value);
-	oled_put_hex(left_proximity_value >> 4);
+	oled_put_hex(right_proximity_value); //use the values you see to threshold detection of an object
 
 
 	oled_set_cursor(2,0);
-	front_proximity_value = read_front_proximity_sensor();
-	oled_put_hex(front_proximity_value);
-	oled_put_hex(front_proximity_value >> 4);
+	left_proximity_value = read_left_proximity_sensor();
+	oled_put_hex(left_proximity_value >> 4);
+	oled_put_hex(left_proximity_value);
 
-	_delay_us(1000000);
+
+
+	oled_set_cursor(0,5);
+	front_proximity_value = read_front_proximity_sensor();
+	oled_put_hex(front_proximity_value >> 4);
+	oled_put_hex(front_proximity_value);
 
 	goto loop;
 
