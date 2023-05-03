@@ -7,6 +7,7 @@
 
 #define BUZZER_PWM_PIN 7 // PD7
 
+// Half the period (to be used for delay)
 int a_note[] = {18182, 9091, 4546, 2273, 1136, 568, 284, 142, 71};
 int a_sharp_note[] = {17193, 8597, 4298, 2149, 1075, 537, 269, 134, 67};
 int b_note[] = {16195, 8097, 4049, 2024, 1012, 506, 253, 127, 63};
@@ -41,9 +42,9 @@ void delay_function(int microseconds)
 	}
 }
 
-void play_note(int period, unsigned int duration)
+void play_note(int period, double duration)
 {   
-	int numCycles = (int) duration * 100000 / period;
+	int numCycles = (int) (duration * 250000 / (double) period);
     for(unsigned int cycles = 0; cycles < numCycles; cycles++)
     {
         turn_on_buzzer();
@@ -53,20 +54,41 @@ void play_note(int period, unsigned int duration)
     }
 }
 
+
 int main()
 {
     configure_buzzer();
 
-	play_note(a_note[4], 10);
+    play_note(c_sharp_note[4], 1);
+    play_note(b_note[4], 1);
+    play_note(c_sharp_note[4], 1);
+    play_note(f_sharp_note[4], 1);
 
-	play_note(c_note[3], 5);
+    _delay_ms(500);
 
-	while(1)
-	{
-        turn_on_buzzer();
-		delay_function(a_note[4]);
-        turn_off_buzzer();
-		delay_function(a_note[4]);
-	}
+    play_note(d_note[4], .25);
+    play_note(c_sharp_note[4], .25);
+    play_note(d_note[4], .25);
+    play_note(c_sharp_note[4], .25);
+    play_note(b_note[4], .25);
+
+    _delay_ms(500);
+
+    play_note(d_note[4], 250);
+    play_note(c_sharp_note[4], 250);
+    play_note(d_note[4], 250);
+    play_note(f_sharp_note[4], 500);
+
+    _delay_ms(500);
+
+    play_note(b_note[4], 250);
+    play_note(a_note[4], 250);
+    play_note(b_note[4], 250);
+    play_note(a_note[4], 250);
+    play_note(g_sharp_note[3], 250);
+    play_note(b_note[4], 250);
+    play_note(a_note[4], 500);
+
+    _delay_ms(500);
 
 }
