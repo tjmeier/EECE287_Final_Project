@@ -6,19 +6,21 @@
 #include "zumo_drivers.h"
 
 #define BUZZER_PWM_PIN 7 // PD7
+#define MICRO_CONVERSION 1000000 // Seconds to Microseconds
 
-int a_note[] = {18182, 9091, 4546, 2273, 1136, 568, 284, 142, 71};
-int a_sharp_note[] = {17193, 8597, 4298, 2149, 1075, 537, 269, 134, 67};
-int b_note[] = {16195, 8097, 4049, 2024, 1012, 506, 253, 127, 63};
-int c_note[] = {30675, 15337, 7669, 3834, 1917, 959, 479, 240, 120};
-int c_sharp_note[] = {28865, 14432, 7216, 3608, 1804, 902, 451, 226, 113};
-int d_note[] = {27391, 13695, 6848, 3424, 1712, 856, 428, 214, 107};
-int d_sharp_note[] = {25775, 12887, 6444, 3222, 1611, 805, 403, 201, 101};
-int e_note[] = {24142, 12071, 6035, 3018, 1509, 754, 377, 189, 94};
-int f_note[] = {22727, 11363, 5682, 2841, 1420, 710, 355, 177, 89};
-int f_sharp_note[] = {21431, 10716, 5358, 2679, 1339, 670, 335, 167, 84};
-int g_note[] = {20248, 10124, 5062, 2531, 1266, 633, 316, 158, 79};
-int g_sharp_note[] = {19159, 9580, 4789, 2395, 1198, 599, 299, 150, 75};
+float a_note[] = {27.50, 55.00, 110.00, 220.00, 440.00, 880.00, 1760.00, 3520.00, 7040.00};
+float a_sharp_note[] = {29.14, 58.27, 116.54, 233.08, 466.16, 932.33, 1864.66, 3729.31, 7458.62};
+float b_note[] = {30.87, 61.74, 123.47, 246.94, 493.88, 987.77, 1975.53, 3951.07, 7902.13};
+float c_note[] = {16.35, 32.70, 65.41, 130.81, 261.63, 523.25, 1046.50, 2093.00, 4186.01};
+float c_sharp_note[] = {17.32, 34.65, 69.30, 138.59, 277.18, 554.37, 1108.73, 2217.46, 4434.92};
+float d_note[] = {18.35, 36.71, 73.42, 146.83, 293.66, 587.33, 1174.66, 2349.32, 4698.63};
+float d_sharp_note[] = {19.45, 38.89, 77.78, 155.56, 311.13, 622.25, 1244.51, 2489.02, 4978.03};
+float e_note[] = {20.60, 41.20, 82.41, 164.81, 329.63, 659.25, 1318.51, 2637.02, 5274.04};
+float f_note[] = {21.83, 43.65, 87.31, 174.61, 349.23, 698.46, 1396.91, 2793.83, 5587.65};
+float f_sharp_note[] = {23.12, 46.25, 92.50, 185.00, 369.99, 739.99, 1479.98, 2959.96, 5919.91};
+float g_note[] = {24.50, 49.00, 98.00, 196.00, 392.00, 783.99, 1567.98, 3135.96, 6271.93};
+float g_sharp_note[] = {25.96, 51.91, 103.83, 207.65, 415.30, 830.61, 1661.22, 3322.44, 6644.88};
+
 
 void configure_buzzer()
 {
@@ -26,47 +28,24 @@ void configure_buzzer()
 }
 
 void turn_on_buzzer(){
-	PORTD |= (1<< BUZZER_PWM_PIN); 
+	PORTB |= (1<< BUZZER_PWM_PIN); 
 }
 
 void turn_off_buzzer(){
-	PORTD &= ~(1<< BUZZER_PWM_PIN); 
+	PORTB &= ~(1<< BUZZER_PWM_PIN); 
 }
 
-void delay_function(int microseconds)
+
+void play_note(float frequency, unsigned int time)
 {
-	for(int count = 0; count < (int) microseconds; count++)
-	{
-		_delay_us(1);
-	}
-}
-
-void play_note(int period, unsigned int duration)
-{   
-	int numCycles = (int) duration * 100000 / period;
-    for(unsigned int cycles = 0; cycles < numCycles; cycles++)
+    double period = 1 / frequency;
+    
+    for(unsigned int cycles = 0; cycles < (double) time/period; cycles++)
     {
         turn_on_buzzer();
-		delay_function(period);
+        _delay_us(period*MICRO_CONVERSION/2);
         turn_off_buzzer();
-		delay_function(period);
+        _delay_us(period*MICRO_CONVERSION/2);
     }
-}
-
-int main()
-{
-    configure_buzzer();
-
-	play_note(a_note[4], 10);
-
-	play_note(c_note[3], 5);
-
-	while(1)
-	{
-        turn_on_buzzer();
-		delay_function(a_note[4]);
-        turn_off_buzzer();
-		delay_function(a_note[4]);
-	}
 
 }
