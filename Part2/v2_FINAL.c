@@ -54,7 +54,7 @@
 //Software Constants
 #define PWM_TOP 100
 #define LEFTQUAD_TO_INCHES 201.5f
-#define QUAD_TO_DEGREES_ROTATED 7.7694f
+#define QUAD_TO_DEGREES_ROTATED 7.7681f
 #define F_RIGHT_TURN_BIAS 0.98975f
 #define R_RIGHT_TURN_BIAS 1.01025f
 #define X_ORIGIN 30
@@ -62,7 +62,7 @@
 #define DRIVE_SPEED 30
 #define TURN_SPEED 25
 
-#define COLLISION 0xC
+#define COLLISION 0xD
 
 //Musical notes globals
 double a_note[] = {27.5, 55, 110, 220, 440, 880, 1760, 3520, 7040, 14080};
@@ -575,7 +575,7 @@ int main(){
 		oled_set_cursor(2,5);
 		oled_put_hex(current_obstacle_count);
 
-		drive_reverse_inches(0.2, DRIVE_SPEED); //back away a little from the obstacle
+		drive_reverse_inches(0.5, DRIVE_SPEED); //back away a little from the obstacle
 
 		get_turn_direction:
 
@@ -601,7 +601,7 @@ int main(){
 	drive_until_collison();
 	current_obstacle_count++;
 
-	drive_reverse_inches(0.2, DRIVE_SPEED);
+	drive_reverse_inches(0.5, DRIVE_SPEED);
 
 	oled_set_cursor(2,5);
 	oled_put_hex(current_obstacle_count);
