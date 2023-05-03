@@ -61,17 +61,17 @@ void play_note(double frequency, double duration)
 
 int main()
 {
-    configure_buzzer();
+configure_buzzer();
 
-    play_note((c_sharp_note[5]), 0.25);
+    play_note((c_sharp_note[5]), 0.175);
 	_delay_ms(10);
-    play_note((b_note[5]), 0.25);
+    play_note((b_note[5]), 0.175);
 	_delay_ms(10);
-    play_note((c_sharp_note[6]), 0.25);
+    play_note((c_sharp_note[6]), 0.40);
 	_delay_ms(10);
-    play_note((f_sharp_note[5]), 1);
+    play_note((f_sharp_note[5]), 1.25);
 
-    _delay_ms(500);
+    _delay_ms(300);
 
     play_note(d_note[6], 0.125);
 	_delay_ms(10);
@@ -81,36 +81,73 @@ int main()
 	_delay_ms(10);
     play_note(c_sharp_note[6], 0.25);
 	_delay_ms(10);
-    play_note(b_note[5], 1);
+    play_note(b_note[5], 1.25);
 
-    _delay_ms(500);
+    _delay_ms(300);
 
-    play_note(d_note[5], 0.25);
+    play_note(d_note[6], 0.125);
 	_delay_ms(10);
-    play_note(c_sharp_note[5], 0.25);
+    play_note(c_sharp_note[5], 0.125);
 	_delay_ms(10);
-    play_note(d_note[6], 0.25);
+    play_note(d_note[6], 0.40);
 	_delay_ms(10);
-    play_note(f_sharp_note[5], 0.25);
+    play_note(f_sharp_note[5], 1.25);
 
-    _delay_ms(500);
+    _delay_ms(300);
 
+    play_note(b_note[5], 0.175);
+	_delay_ms(10);
+    play_note(a_note[5], 0.25);
+	_delay_ms(10);
     play_note(b_note[5], 0.25);
 	_delay_ms(10);
-    play_note(a_note[5], .250);
-	_delay_ms(10);
-    play_note(b_note[5], .250);
-	_delay_ms(10);
-    play_note(a_note[5], .250);
+    play_note(a_note[5], 0.25);
 	_delay_ms(10);
 
-    play_note(g_sharp_note[5], .250);
+    play_note(g_sharp_note[5], 0.25);
 	_delay_ms(10);
-    play_note(b_note[5], .250);
+    play_note(b_note[5], 0.25);
 	_delay_ms(10);
-    play_note(a_note[5], 1);
-	_delay_ms(10);
+    play_note(a_note[5], 1.25);
 
-    _delay_ms(500);
+    _delay_ms(100);
+
+    play_note(g_sharp_note[4], 0.25);
+    _delay_ms(10);
+    play_note(a_note[5], 0.25);
+    _delay_ms(10);
+    play_note(b_note[5], 1);
+
+    _delay_ms(100);
+
+    play_note(a_note[5], 0.25);
+    _delay_ms(10);
+    play_note(b_note[5], 0.25);
+    _delay_ms(10);
+    play_note(c_sharp_note[6], 0.25);
+    _delay_ms(10);
+    play_note(b_note[5], 0.25);
+    _delay_ms(10);
+    play_note(a_note[5], 0.25);
+    _delay_ms(10);
+    play_note(g_sharp_note[5], 0.25);
+    _delay_ms(10);
+    play_note(f_sharp_note[5], 0.5);
+    _delay_ms(10);
+    play_note(d_note[6], 0.5);
+    _delay_ms(10);
+    play_note(c_sharp_note[6], 1);
+
+    _delay_ms(200);
+
+    play_note(c_sharp_note[6], .25);
+    _delay_ms(10);
+    play_note(d_note[5], .25);
+    _delay_ms(10);
+    play_note(c_sharp_note[5], .25);
+    _delay_ms(10);
+    play_note(b_note[5], .25);
+    _delay_ms(10);
+    play_note(c_sharp_note[6], 1);
 
 }
